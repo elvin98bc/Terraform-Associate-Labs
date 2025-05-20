@@ -1,0 +1,11 @@
+#!/bin/bash
+# Update packages
+yum update -y
+
+# Install NGINX
+amazon-linux-extras install -y nginx1
+systemctl start nginx
+systemctl enable nginx
+
+# Create a custom homepage
+echo "<h1>Hello from $(hostname -f)</h1>" > /usr/share/nginx/html/index.html

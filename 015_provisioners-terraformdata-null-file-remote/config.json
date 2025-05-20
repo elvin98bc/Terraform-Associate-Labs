@@ -1,0 +1,9 @@
+{
+  "app_name": "MyApp",
+  "version": "1.0.4",
+  "environment": "dev",
+  "features": {
+    "enable_logging": true,
+    "enable_notifications": false
+  }
+}

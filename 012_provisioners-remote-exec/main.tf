@@ -8,11 +8,11 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = "ap-southeast-1"
 }
 
 data "aws_vpc" "main" {
-  id = "vpc-bd9bdcc7"
+  id = "vpc-028d38da7adc5c214"
 }
 
 
@@ -38,7 +38,7 @@ resource "aws_security_group" "sg_my_server" {
       from_port        = 22
       to_port          = 22
       protocol         = "tcp"
-      cidr_blocks      = ["104.194.51.113/32"]
+      cidr_blocks      = ["161.142.151.160/32"]
       ipv6_cidr_blocks = []
 			prefix_list_ids  = []
 			security_groups = []
@@ -61,32 +61,34 @@ resource "aws_security_group" "sg_my_server" {
   ]
 }
 
-resource "aws_key_pair" "deployer" {
-  key_name   = "deployer-key"
-  public_key = "YOUR_SSH_KEY"
-}
+# resource "aws_key_pair" "deployer" {
+#   key_name   = "mynewkeypair"
+#   public_key = "YOUR_SSH_KEY"
+# }
 
-data "template_file" "user_data" {
-	template = file("./userdata.yaml")
-}
+# data "template_file" "user_data" {
+# 	template = file("./userdata.yaml")
+# }
 
 
 resource "aws_instance" "my_server" {
-  ami           = "ami-087c17d1fe0178315"
+  ami           = "ami-0afc7fe9be84307e4"
   instance_type = "t2.micro"
-	key_name = "${aws_key_pair.deployer.key_name}"
+	key_name = "mynewkeypair"
 	vpc_security_group_ids = [aws_security_group.sg_my_server.id]
-	user_data = data.template_file.user_data.rendered
+  user_data = templatefile("./userdata.yaml", {})
+
   provisioner "remote-exec" {
 		inline = [
-			"echo \"mars\" >> /home/ec2-user/barsoon/txt"
+      "mkdir -p /home/ec2-user/barsoon",
+      "echo ${self.private_ip} > /home/ec2-user/barsoon/hello.txt"
 		]
-		connection {
-			type     = "ssh"
-			user     = "ec2-user"
-			host     = "${self.public_ip}"
-			private_key = "${file("/root/.ssh/terraform")}"
-		}
+    connection {
+      type     = "ssh"
+      user     = "ec2-user"
+      host     = "${self.public_ip}"
+      private_key = "${file("/Users/elvinchieng/Downloads/mynewkeypair.pem")}"
+    }
   }
 
   tags = {
