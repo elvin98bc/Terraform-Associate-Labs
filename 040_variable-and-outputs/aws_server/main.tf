@@ -10,8 +10,8 @@ terraform {
 variable "instance_type" {
 	type = string
 	description = "The size of the instance."
-	#sensitive = true
-	validation {
+  sensitive = false
+  validation {
     condition     = can(regex("^t2.",var.instance_type))
     error_message = "The instance must be a t2 type EC2 instance."
 	}
@@ -19,7 +19,7 @@ variable "instance_type" {
 
 provider "aws" {
   profile = "default"
-  region  = "us-east-1"
+  region  = "ap-southeast-1"
 }
 
 data "aws_ami" "ubuntu" {
