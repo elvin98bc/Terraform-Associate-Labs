@@ -9,12 +9,29 @@ terraform {
 
 provider "aws" {
   profile = "default"
-  region  = "us-east-1"
+  region  = "ap-southeast-1"
 }
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
 resource "aws_instance" "my_server" {
 	count = 2
-  ami           = "ami-087c17d1fe0178315"
-  instance_type = "t2.micro"
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t2.nano"
 	tags = {
 		Name = "Server-${count.index}"
 	}
@@ -23,3 +40,5 @@ resource "aws_instance" "my_server" {
 output "public_ip" {
   value = aws_instance.my_server[*].public_ip
 }
+
+### if done some changes in the code, but not re-provisioning resources, like change tag name etc, can use tf apply -refresh-only

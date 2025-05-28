@@ -63,3 +63,10 @@ resource "aws_security_group" "allow_tls" {
     }
   ]
 }
+
+# dynamic "block_label" {
+#   for_each = <expression>
+#   content {
+#     # actual block content using each.value
+#   }
+# }

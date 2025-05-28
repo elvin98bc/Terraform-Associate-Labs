@@ -9,16 +9,32 @@ terraform {
 
 provider "aws" {
   profile = "default"
-  region  = "us-east-1"
+  region  = "ap-southeast-1"
 }
-resource "aws_instance" "our_server" {
-  ami           = "ami-087c17d1fe0178315"
-  instance_type = "t2.micro"
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+resource "aws_instance" "my_server" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t2.nano"
 	tags = {
 		Name = "MyServer"
 	}
 }
 
 output "public_ip" {
-  value = aws_instance.our_server[*].public_ip
+  value = aws_instance.my_server[*].public_ip
 }
